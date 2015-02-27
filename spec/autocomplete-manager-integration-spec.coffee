@@ -100,6 +100,23 @@ describe 'Autocomplete Manager', ->
             expect(editorView.querySelector('.autocomplete-plus')).not.toExist()
             expect(editor.getSelectedText()).toBe 'something'
 
+    describe "when a replacementPrefix is not specified", ->
+      beforeEach ->
+        spyOn(provider, 'getSuggestions').andCallFake ->
+          [text: 'something']
+
+      it "replaces with the default input prefix", ->
+        editor.insertText('abc')
+        triggerAutocompletion(editor, false, 'm')
+
+        expect(editor.getText()).toBe 'abcm'
+
+        runs ->
+          expect(editorView.querySelector('.autocomplete-plus')).toExist()
+          suggestionListView = editorView.querySelector('.autocomplete-plus autocomplete-suggestion-list')
+          atom.commands.dispatch(suggestionListView, 'autocomplete-plus:confirm')
+          expect(editor.getText()).toBe 'something'
+
   describe 'when opening a file without a path', ->
     beforeEach ->
       waitsForPromise ->
